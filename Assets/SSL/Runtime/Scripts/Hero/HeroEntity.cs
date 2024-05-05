@@ -24,6 +24,10 @@ public class HeroEntity : MonoBehaviour
     [SerializeField] private GroundDetector _groundDetector;
     public bool IsTouchingGround { get; private set; } = false;
 
+    [Header("Walls")]
+    [SerializeField] private WallsDetector _wallsDetector;
+    public bool IsTouchingWalls { get; private set; } = false;
+
     [Header("Dash Movements")]
     [SerializeField] private HeroHorizontalDashSettings _DashSettings;
     [SerializeField] private HeroAirHorizontalDashSettings _DashAirSettings;
@@ -85,6 +89,12 @@ public class HeroEntity : MonoBehaviour
         IsTouchingGround = _groundDetector.DetectGroundNearBy();
     }
 
+    private void _ApplyWallsDetection()
+    {
+        IsTouchingWalls = _wallsDetector.DetectWallsNearBy();
+        Debug.Log("IsTouchingWalls" + IsTouchingWalls);
+    }
+
     private void _ResetVerticalSpeed()
     {
         _verticalSpeed = 0f;
@@ -119,6 +129,7 @@ public class HeroEntity : MonoBehaviour
     private void FixedUpdate()
     {
         _ApplyGroundDetection();
+        _ApplyWallsDetection();
         _UpdateCameraFollowPosition();
         HeroHorizontalMovementsSettings horizontalMovementSettings = _GetCurrentHorizontalMovementSettings();
 
@@ -135,6 +146,20 @@ public class HeroEntity : MonoBehaviour
             _jumpState = JumpState.Falling;
         }
 
+        if (IsTouchingWalls && _isDashMovements && IsTouchingGround)
+        {
+            _isDashMovements = false;
+            _dashStartTime = 0f; 
+            _horizontalSpeed = 0f;
+        }
+
+        if (IsTouchingWalls && _isDashMovements && !IsTouchingGround)
+        {
+            _isDashMovements = false;
+            _dashStartTime = 0f;
+            _horizontalSpeed = 0f;
+            _jumpState = JumpState.Falling;
+        }
         if (_isDashMovements && IsTouchingGround) {
             _ApplyHorizontalDashSpeed();
         } else if (_isDashMovements && !IsTouchingGround)
