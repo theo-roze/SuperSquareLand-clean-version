@@ -22,13 +22,10 @@ public class CameraManager : MonoBehaviour
 
     private void _SetCameraPosition(Vector3 position)
     {
-        Debug.Log("_SetCameraPosition " + position);
         Vector3 newCameraPosition = _camera.transform.position;
         newCameraPosition.x = position.x;
         newCameraPosition.y = position.y;
-        Debug.Log("_SetCameraPosition " + newCameraPosition);
-        Debug.Log("");
-
+       
        _camera.transform.position = newCameraPosition;
     }
 
@@ -58,15 +55,10 @@ public class CameraManager : MonoBehaviour
     private void Update()
     {
         Vector3 nextPosition = _FindCameraNextPosition();
-        Debug.Log("nextPosition   " + nextPosition);
-       
+        
         nextPosition = _ClampPositionIntoBounds(nextPosition);
-        Debug.Log("nextPosition 1 " + nextPosition);
         nextPosition = _ApplyDamping(nextPosition);
-        Debug.Log("nextPosition 2 " + nextPosition);
-        Debug.Log("");
-       // return;
-
+     
         if (_IsPlayingProfileTransition())
         {
             _profileTransitionTimer += Time.deltaTime;

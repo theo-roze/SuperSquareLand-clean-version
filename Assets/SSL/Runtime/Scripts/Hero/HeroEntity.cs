@@ -26,6 +26,7 @@ public class HeroEntity : MonoBehaviour
 
     [Header("Dash Movements")]
     [SerializeField] private HeroHorizontalDashSettings _DashSettings;
+    [SerializeField] private HeroAirHorizontalDashSettings _DashAirSettings;
     private bool _isDashMovements = false;
     private float _dashStartTime = 0f;
 
@@ -120,14 +121,25 @@ public class HeroEntity : MonoBehaviour
         _ApplyGroundDetection();
         _UpdateCameraFollowPosition();
         HeroHorizontalMovementsSettings horizontalMovementSettings = _GetCurrentHorizontalMovementSettings();
-        if (_isDashMovements && Time.time >= _dashStartTime + _DashSettings.Duration)
+
+        if (_isDashMovements && IsTouchingGround && Time.time >= _dashStartTime + _DashSettings.Duration)
         {
             _isDashMovements = false;
             _dashStartTime = 0f;
         }
 
-        if (_isDashMovements) {
+        if (_isDashMovements && !IsTouchingGround && Time.time >= _dashStartTime + _DashAirSettings.Duration)
+        {
+            _isDashMovements = false;
+            _dashStartTime = 0f;
+            _jumpState = JumpState.Falling;
+        }
+
+        if (_isDashMovements && IsTouchingGround) {
             _ApplyHorizontalDashSpeed();
+        } else if (_isDashMovements && !IsTouchingGround)
+        { 
+            _ApplyHorizontalDashAirSpeed();
         }
         else  {
             if (_AreOrientAndMovementOpposite())
@@ -172,6 +184,14 @@ public class HeroEntity : MonoBehaviour
         Vector2 velocity = _rigidbody.velocity;
         velocity.x = _DashSettings.Speed * _orientX;
         _rigidbody.velocity = velocity;
+    }
+    private void _ApplyHorizontalDashAirSpeed()
+    {
+        Vector2 velocity = _rigidbody.velocity;
+        velocity.x = _DashAirSettings.Speed * _orientX;
+        velocity.y = 0;
+        _rigidbody.velocity = velocity;
+        _jumpState = JumpState.NotJumping;
     }
 
     private void _ApplyHorizontalSpeed()
