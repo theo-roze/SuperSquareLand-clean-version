@@ -2,9 +2,15 @@
 
 public class CameraChangeProfileTrigger : MonoBehaviour
 {
+    private const string TARGET_TAG = "CameraTriggerTarget";
+
     [Header("Camera Profile")]
     [SerializeField] private CameraProfile _cameraProfile;
-    
+
+    [Header("Camera Transitions")]
+    [SerializeField] private CameraProfileTransition _enterTransition;
+    [SerializeField] private CameraProfileTransition _exitTransition;
+
     [Header("Trigger Box")]
     [SerializeField] private BoxCollider2D _boxCollider;
 
@@ -19,4 +25,20 @@ public class CameraChangeProfileTrigger : MonoBehaviour
         Gizmos.DrawCube(boxCenter, boxSize);
         Gizmos.color = Color.white;
     }
+
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (!other.CompareTag(TARGET_TAG)) return;
+        CameraManager.Instance.EnterProfile(_cameraProfile, _enterTransition);
+       // CameraManager.Instance.EnterProfile(_cameraProfile);
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (!other.CompareTag(TARGET_TAG)) return;
+        CameraManager.Instance.ExitProfile(_cameraProfile, _exitTransition);
+        // CameraManager.Instance.ExitProfile(_cameraProfile);
+    }
+
 }
